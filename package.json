@@ -1,0 +1,13 @@
+{
+    "name": "com.salieri.core",
+    "version": "1.0.0",
+    "displayName": "SLFramework",
+    "description": "General Framework by Salieri",
+    "unity": "2021.3",
+    "dependencies": {},
+    "author": {
+      "name": "Salieri",
+      "email": "754978334@qq.com",
+      "url": "https://github.com/DRSalieri/SLFramework.git"
+    }
+  }
