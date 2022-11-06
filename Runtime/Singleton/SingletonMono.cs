@@ -17,11 +17,20 @@ namespace SLFramework.Singleton
             if (instance == null)
             {
                 instance = (T)this;
+                OnAwakeInit();
             }
             else
             {
                 Destroy(gameObject);
             }
+        }
+
+        /// <summary>
+        /// Awake中初次初始化时会调用的函数
+        /// </summary>
+        protected virtual void OnAwakeInit()
+        {
+
         }
     }
 }

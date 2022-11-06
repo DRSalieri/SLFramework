@@ -204,6 +204,8 @@ namespace SLFramework.Controller
             // 设置转向速度
             float rad = Mathf.Atan2(playerMovement.x, playerMovement.z);
             animator.SetFloat(turnSpeedHash, rad, 0.1f, Time.deltaTime);
+            // 转向速度慢，人为添加转向
+            playerTransform.Rotate(0f, rad * 180 * Time.deltaTime, 0f);
             
         }
         #endregion
