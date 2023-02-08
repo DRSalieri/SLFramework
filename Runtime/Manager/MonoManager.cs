@@ -6,7 +6,9 @@ using SLFramework.Singleton;
 namespace SLFramework.Manager
 {
     /// <summary>
-    /// 单例管理器
+    /// 单例类型的一个管理器
+    /// 1.方便调用Update的函数
+    /// 2.方便启动协程
     /// </summary>
     public class MonoManager : Singleton<MonoManager>
     {
