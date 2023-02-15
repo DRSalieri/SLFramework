@@ -2,14 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using SLFramework.MyDebug.Runtime;
-using Unity.VisualScripting.YamlDotNet.Core.Tokens;
+using System;
 
 namespace SLFramework.Gameplay.Grid
 {
     /// <summary>
     /// 网格类
     /// </summary>
-    public class Grid_Rect<TGridObject>
+    public class Grid<TGridObject>
     {
         #region Private Members
 
@@ -49,7 +49,8 @@ namespace SLFramework.Gameplay.Grid
         /// <param name="_height">高（Y/Z坐标）</param>
         /// <param name="_cellSize">格子边长</param>
         /// <param name="_originPosition">左下角的世界坐标</param>
-        public Grid_Rect(int _width, int _height, float _cellSize, Vector3 _originPosition)
+        /// <param name="createGridObject">GridObject的初始化函数，参数为(Grid<T>, int, int)，返回值为T</param>
+        public Grid(int _width, int _height, float _cellSize, Vector3 _originPosition, Func<Grid<TGridObject>, int, int, TGridObject> createGridObject)
         {
             this.width = _width;
             this.height = _height;
@@ -57,6 +58,15 @@ namespace SLFramework.Gameplay.Grid
             this.originPosition = _originPosition;
 
             gridArray = new TGridObject[_width, _height];
+
+            // 初始化GridObject
+            for (int x = 0; x < gridArray.GetLength(0); x++)
+            {
+                for (int y = 0; y < gridArray.GetLength(1); y++)
+                {
+                    gridArray[x, y] = createGridObject(this, x, y);
+                }
+            }
         }
 
         #endregion
@@ -73,22 +83,11 @@ namespace SLFramework.Gameplay.Grid
             return new Vector3(x + 0.5f, y + 0.5f) * cellSize;
         }
 
-        private void GetXY(Vector3 worldPosition, out int x, out int y)
-        {
-            x = Mathf.FloorToInt(worldPosition.x / cellSize);
-            y = Mathf.FloorToInt(worldPosition.y / cellSize);
-        }
-
-        private bool IsCoordValid(int x, int y)
-        {
-            return (x >= 0) && (y >= 0) && (x < width) && (y < height);
-        }
-
         #endregion
 
         #region Public Methods
 
-        public void SetValue(int x,int y,TGridObject value)
+        public void SetGridObject(int x,int y,TGridObject value)
         {
             if (IsCoordValid(x, y))
             {
@@ -96,13 +95,13 @@ namespace SLFramework.Gameplay.Grid
             }
         }
 
-        public void SetValue(Vector3 worldPosition, TGridObject value)
+        public void SetGridObject(Vector3 worldPosition, TGridObject value)
         {
             GetXY(worldPosition, out int x, out int y);
-            SetValue(x, y, value);
+            SetGridObject(x, y, value);
         }
 
-        public TGridObject GetValue(int x, int y)
+        public TGridObject GetGridObject(int x, int y)
         {
             if(IsCoordValid(x, y))
             {
@@ -111,10 +110,31 @@ namespace SLFramework.Gameplay.Grid
             return default(TGridObject);    // 坐标无效时返回一个默认值
         }
 
-        public TGridObject GetValue(Vector3 worldPosition)
+        public TGridObject GetGridObject(Vector3 worldPosition)
         {
             GetXY(worldPosition, out int x, out int y);
-            return GetValue(x, y);
+            return GetGridObject(x, y);
+        }
+
+        public void GetXY(Vector3 worldPosition, out int x, out int y)
+        {
+            x = Mathf.FloorToInt(worldPosition.x / cellSize);
+            y = Mathf.FloorToInt(worldPosition.y / cellSize);
+        }
+
+        public bool IsCoordValid(int x, int y)
+        {
+            return (x >= 0) && (y >= 0) && (x < width) && (y < height);
+        }
+
+        public int GetWidth()
+        {
+            return width;
+        }
+
+        public int GetHeight()
+        {
+            return height;
         }
 
         #endregion

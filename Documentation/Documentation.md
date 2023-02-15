@@ -45,11 +45,26 @@ Canvas下挂载需要使用的UI，每个UI需要挂载一个脚本（继承于U
 
 # 其他GamePlay相关系统
 
-## 矩形网格系统（Grid_Rect）
+## 矩形网格系统（Grid）
 
 位置：Runtime/Gameplay/Grid
 命名空间：SLFramework.Gameplay.Grid
 
 跟着Code Monkey实现的泛型矩形网格系统。
+
+## 有限状态机（FSM）
+
+位置：Runtime/Gameplay/FSM
+命名空间：SLFramework.Gameplay.FSM
+
+使用前，需要自己定义两个枚举类（一个为状态、一个为事件）
+
+每一个状态都需要一个类（实现IState接口），用于存储该状态所需的数据，实现OnEnter、OnUpdate、OnExit函数等...（公有数据可以存一个blackboard的引用，私有数据可以直接存在类中）
+
+新建状态机后，为其添加状态及转换，在Update中调用fsm.Update()即可，并在恰当的时机调用TriggerEvent来实现状态转换。
+
+
+
+
 
 # Debug相关
