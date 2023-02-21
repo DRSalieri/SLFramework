@@ -1,16 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using SLFramework.MyDebug.Runtime;
+using SLFramework.Gameplay.Grid;
 using System;
+using SLFramework.MyDebug.Runtime;
 
 namespace SLFramework.Gameplay.Grid
 {
-    /// <summary>
-    /// 网格类
-    /// </summary>
-    public class Grid<TGridObject>
+    public class GridXZ<TGridObject>
     {
+
         #region Private Members
 
         /// <summary>
@@ -19,7 +18,7 @@ namespace SLFramework.Gameplay.Grid
         private int width;
 
         /// <summary>
-        /// 网格高（Y坐标）
+        /// 网格高（Z坐标）
         /// </summary>
         private int height;
 
@@ -50,7 +49,7 @@ namespace SLFramework.Gameplay.Grid
         /// <param name="_cellSize">格子边长</param>
         /// <param name="_originPosition">左下角的世界坐标</param>
         /// <param name="createGridObject">GridObject的初始化函数，参数为(Grid<T>, int, int)，返回值为T</param>
-        public Grid(int _width, int _height, float _cellSize, Vector3 _originPosition, Func<Grid<TGridObject>, int, int, TGridObject> createGridObject)
+        public GridXZ(int _width, int _height, float _cellSize, Vector3 _originPosition, Func<GridXZ<TGridObject>, int, int, TGridObject> createGridObject)
         {
             this.width = _width;
             this.height = _height;
@@ -62,9 +61,9 @@ namespace SLFramework.Gameplay.Grid
             // 初始化GridObject
             for (int x = 0; x < gridArray.GetLength(0); x++)
             {
-                for (int y = 0; y < gridArray.GetLength(1); y++)
+                for (int z = 0; z < gridArray.GetLength(1); z++)
                 {
-                    gridArray[x, y] = createGridObject(this, x, y);
+                    gridArray[x, z] = createGridObject(this, x, z);
                 }
             }
         }
@@ -73,58 +72,58 @@ namespace SLFramework.Gameplay.Grid
 
         #region Private Methods
 
-        private Vector3 GetWorldPosition_LD(int x, int y)
+        private Vector3 GetWorldPosition_LD(int x, int z)
         {
-            return new Vector3(x, y) * cellSize;
+            return new Vector3(x, 0, z) * cellSize;
         }
 
-        private Vector3 GetWorldPosition_C(int x, int y)
+        private Vector3 GetWorldPosition_C(int x, int z)
         {
-            return new Vector3(x + 0.5f, y + 0.5f) * cellSize;
+            return new Vector3(x + 0.5f, 0, z + 0.5f) * cellSize;
         }
 
         #endregion
 
         #region Public Methods
 
-        public void SetGridObject(int x,int y,TGridObject value)
+        public void SetGridObject(int x, int z, TGridObject value)
         {
-            if (IsCoordValid(x, y))
+            if (IsCoordValid(x, z))
             {
-                gridArray[x, y] = value;
+                gridArray[x, z] = value;
             }
         }
 
         public void SetGridObject(Vector3 worldPosition, TGridObject value)
         {
-            GetXY(worldPosition, out int x, out int y);
-            SetGridObject(x, y, value);
+            GetXY(worldPosition, out int x, out int z);
+            SetGridObject(x, z, value);
         }
 
-        public TGridObject GetGridObject(int x, int y)
+        public TGridObject GetGridObject(int x, int z)
         {
-            if(IsCoordValid(x, y))
+            if (IsCoordValid(x, z))
             {
-                return gridArray[x, y];
+                return gridArray[x, z];
             }
             return default(TGridObject);    // 坐标无效时返回一个默认值
         }
 
         public TGridObject GetGridObject(Vector3 worldPosition)
         {
-            GetXY(worldPosition, out int x, out int y);
-            return GetGridObject(x, y);
+            GetXY(worldPosition, out int x, out int z);
+            return GetGridObject(x, z);
         }
 
-        public void GetXY(Vector3 worldPosition, out int x, out int y)
+        public void GetXY(Vector3 worldPosition, out int x, out int z)
         {
             x = Mathf.FloorToInt(worldPosition.x / cellSize);
-            y = Mathf.FloorToInt(worldPosition.y / cellSize);
+            z = Mathf.FloorToInt(worldPosition.z / cellSize);
         }
 
-        public bool IsCoordValid(int x, int y)
+        public bool IsCoordValid(int x, int z)
         {
-            return (x >= 0) && (y >= 0) && (x < width) && (y < height);
+            return (x >= 0) && (z >= 0) && (x < width) && (z < height);
         }
 
         public int GetWidth()
@@ -149,22 +148,22 @@ namespace SLFramework.Gameplay.Grid
         {
             // 把所有WorldText统一管理
             Transform textRoot = GameObject.Find("GridWorldTextRoot")?.transform;
-            if(textRoot == null)
+            if (textRoot == null)
             {
                 textRoot = new GameObject("GridWorldTextRoot").transform;
             }
 
             for (int x = 0; x < gridArray.GetLength(0); x++)
             {
-                for (int y = 0; y < gridArray.GetLength(1); y++)
+                for (int z = 0; z < gridArray.GetLength(1); z++)
                 {
-                    if(DrawText)
+                    if (DrawText)
                     {
-                        RuntimeDebug.CreateWorldText(textRoot, gridArray[x, y].ToString(), GetWorldPosition_LD(x, y) + new Vector3(cellSize, cellSize) * 0.5f, 20, Color.white, TextAnchor.MiddleCenter);
+                        RuntimeDebug.CreateWorldText(textRoot, gridArray[x, z].ToString(), GetWorldPosition_LD(x, z) + new Vector3(cellSize, 0, cellSize) * 0.5f, 20, Color.white, TextAnchor.MiddleCenter);
                     }
 
-                    Debug.DrawLine(GetWorldPosition_LD(x, y), GetWorldPosition_LD(x, y + 1), Color.white, 100f);
-                    Debug.DrawLine(GetWorldPosition_LD(x, y), GetWorldPosition_LD(x + 1, y), Color.white, 100f);
+                    Debug.DrawLine(GetWorldPosition_LD(x, z), GetWorldPosition_LD(x, z + 1), Color.white, 100f);
+                    Debug.DrawLine(GetWorldPosition_LD(x, z), GetWorldPosition_LD(x + 1, z), Color.white, 100f);
                 }
             }
             Debug.DrawLine(GetWorldPosition_LD(0, height), GetWorldPosition_LD(width, height), Color.white, 100f);
@@ -172,5 +171,6 @@ namespace SLFramework.Gameplay.Grid
         }
 
         #endregion
+
     }
 }
